@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { Product } from '@prisma/client';
 
@@ -9,9 +8,20 @@ export class ProductsService {
   public getAll(): Promise<Product[]> {
     return this.prismaService.product.findMany();
   }
-  public getById(id: Product['id']): Promise<Product | null> {
+  public getById(id: Product['id']): Promise<Product> | null {
     return this.prismaService.product.findUnique({
       where: { id },
+    });
+  }
+  public getAllExtended(): Promise<Product[]> {
+    return this.prismaService.product.findMany({
+      include: { orders: true },
+    });
+  }
+  public getByIdExtended(id: Product['id']): Promise<Product> | null {
+    return this.prismaService.product.findUnique({
+      where: { id },
+      include: { orders: true },
     });
   }
   public deleteById(id: Product['id']): Promise<Product> {
@@ -20,19 +30,19 @@ export class ProductsService {
     });
   }
   public create(
-    productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>,
+    ProductData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<Product> {
     return this.prismaService.product.create({
-      data: productData,
+      data: ProductData,
     });
   }
   public updateById(
     id: Product['id'],
-    productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>,
+    ProductData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<Product> {
     return this.prismaService.product.update({
       where: { id },
-      data: productData,
+      data: ProductData,
     });
   }
 }
